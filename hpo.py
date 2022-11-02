@@ -12,7 +12,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 import torchvision.models as models
-import torchvision.transforms as transforms
+from torchvision import datasets, transforms
+
 
 import argparse
 
@@ -46,7 +47,7 @@ def test(model, test_loader, loss_criterion):
 def train(model, train_loader, criterion, optimizer, epochs):
     for epoch in range(1, epochs +1):
         model.train()
-        for batch_idx, (data, target) in enumerate(train_loader, 1):
+        for batch_idx, (data, target) in enumerate(train_loader):
             optimizer.zero_grad()
             output = model(data)
             loss = loss_criterion(output, target)
@@ -78,22 +79,23 @@ def net():
     '''
 
     
-def create_train_loader(directory, batch_size):
+def create_train_loader(data_dir, batch_size):
     #data_dir = "dogbread"
     
     logger.info("Get train data loader")
-    training_dir = directory + "train"
-    train_transform = transforms.Compose([transforms.ToTensor()])
+    
+    training_dir = os.path.join(data_dir, "train/")
+    train_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     train_data = datasets.ImageFolder(training_dir, transform = train_transform)
     train_loader = torch.utils.data.DataLoader(train_data, batch_size= batch_size, shuffle=True)
     
     return train_loader
     
-def create_test_loader(directory, test_batch_size):
+def create_test_loader(data_dir, test_batch_size):
     
     logger.info("Get test data loader")
-    test_dir = directory + "test"
-    test_transform = transforms.Compose([transforms.ToTensor()])
+    test_dir = os.path.join(data_dir , "test/")
+    test_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     test_data = datasets.ImageFolder(test_dir, transform = test_transform)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size= test_batch_size)
 
